@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Twill - The Content Plug</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      background: radial-gradient(circle at top, #3b82f6, #0f172a 55%, #020617);
+      color: #e5e7eb;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1200px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: conic-gradient(
+        from 180deg,
+        #22c55e,
+        #3b82f6,
+        #a855f7,
+        #22c55e
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #020617;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 0 24px rgba(59, 130, 246, 0.6);
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .logo-text h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .logo-text span {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 18px rgba(148, 163, 184, 0.9);
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(16px);
+      white-space: nowrap;
+    }
+
+    .search-bar {
+      margin-top: 4px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      position: relative;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      outline: none;
+      font-size: 0.9rem;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.8),
+        0 18px 35px rgba(15, 23, 42, 0.9);
+    }
+
+    .search-bar input::placeholder {
+      color: #6b7280;
+    }
+
+    .search-bar button {
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #a3e635);
+      color: #022c22;
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.6);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      white-space: nowrap;
+    }
+
+    .search-bar button:hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 0 26px rgba(34, 197, 94, 0.8);
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: minmax(340px, 1.3fr) minmax(180px, 0.7fr);
+      gap: 18px;
+      margin-top: 10px;
+    }
+
+    /* NOW PLAYING SECTION */
+
+    .player-wrapper {
+      position: relative;
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top left, #1f2937, #020617 70%);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.9);
+      min-height: 300px;
+    }
+
+    .player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .player-title {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .player-title span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.9);
+    }
+
+    .player-main-label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .player-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .player-grid {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+    }
+
+    .player-col {
+      flex: 1 1 50%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .player-slot {
+      flex: 1 1 50%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .player-slot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      gap: 6px;
+    }
+
+    .slot-pill {
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.8);
+      font-size: 0.7rem;
+    }
+
+    .slot-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sound-toggle {
+      border: none;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      background: rgba(148, 163, 184, 0.18);
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sound-toggle:hover {
+      background: rgba(148, 163, 184, 0.3);
+    }
+
+    .sound-toggle.active {
+      background: rgba(251, 191, 36, 0.18);
+      color: #fbbf24;
+      box-shadow: 0 0 14px rgba(251, 191, 36, 0.7);
+    }
+
+    .slot-clear {
+      border: none;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      background: rgba(239, 68, 68, 0.15);
+      color: #fecaca;
+    }
+
+    .slot-clear:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    .player-dropzone {
+      margin-top: 2px;
+      flex: 1;
+      border-radius: 18px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.85);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease,
+        background 0.16s ease, transform 0.16s ease;
+      aspect-ratio: 16 / 9;
+      padding: 4px;
+    }
+
+    .player-dropzone.drag-over {
+      border-style: solid;
+      border-color: #22c55e;
+      box-shadow: 0 0 22px rgba(34, 197, 94, 0.7);
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.16), #020617);
+      transform: translateY(-1px);
+    }
+
+    /* Sound highlight around playing slot */
+    .player-dropzone.sound-active {
+      border-style: solid;
+      border-color: #fbbf24;
+      box-shadow: 0 0 25px rgba(251, 191, 36, 0.9);
+    }
+
+    .player-empty-state {
+      text-align: center;
+      padding: 16px;
+      color: #6b7280;
+      font-size: 0.85rem;
+      width: 100%;
+    }
+
+    .player-empty-state strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .player-content {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      gap: 4px;
+    }
+
+    .player-video {
+      flex: 2 0 66%;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .player-chat {
+      flex: 1 0 34%;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px;
+      font-size: 0.7rem;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(55, 65, 81, 0.9);
+      color: #e5e7eb;
+    }
+
+    .chat-close {
+      border: none;
+      background: none;
+      color: #fca5a5;
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 2px 4px;
+    }
+
+    .chat-close:hover {
+      color: #fecaca;
+    }
+
+    .player-chat-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+    }
+
+    .player-chat-empty {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      padding: 6px 8px;
+      text-align: center;
+      display: none;
+    }
+
+    .player-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 14px;
+      display: none;
+    }
+
+    /* Inner resizer between video & chat */
+    .inner-resizer {
+      width: 6px;
+      flex: 0 0 auto;
+      cursor: col-resize;
+      border-radius: 999px;
+      background: linear-gradient(
+        180deg,
+        rgba(148, 163, 184, 0.2),
+        rgba(148, 163, 184, 0.7),
+        rgba(148, 163, 184, 0.2)
+      );
+      position: relative;
+    }
+
+    .inner-resizer::before {
+      content: "";
+      position: absolute;
+      inset: 10px 1px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+    }
+
+    /* Column/row resizers */
+
+    .col-resizer {
+      width: 6px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: linear-gradient(
+        180deg,
+        rgba(148, 163, 184, 0.2),
+        rgba(148, 163, 184, 0.7),
+        rgba(148, 163, 184, 0.2)
+      );
+      cursor: col-resize;
+      position: relative;
+    }
+
+    .col-resizer::before {
+      content: "";
+      position: absolute;
+      inset: 12px 1px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+    }
+
+    .row-resizer {
+      height: 6px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        rgba(148, 163, 184, 0.2),
+        rgba(148, 163, 184, 0.7),
+        rgba(148, 163, 184, 0.2)
+      );
+      cursor: row-resize;
+      position: relative;
+    }
+
+    .row-resizer::before {
+      content: "";
+      position: absolute;
+      inset: 1px 12px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+    }
+
+    @media (max-width: 799px) {
+      .player-grid {
+        flex-direction: column;
+      }
+      .col-resizer {
+        display: none;
+      }
+      .player-content {
+        flex-direction: column;
+      }
+      .inner-resizer {
+        display: none;
+      }
+      .player-video,
+      .player-chat {
+        flex: unset;
+        height: 50%;
+      }
+    }
+
+    /* QUEUE SECTION */
+
+    .queue-wrapper {
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: linear-gradient(
+        135deg,
+        rgba(15, 23, 42, 0.9),
+        rgba(8, 47, 73, 0.9)
+      );
+      padding: 14px 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 16px 35px rgba(15, 23, 42, 0.9);
+      min-height: 160px;
+    }
+
+    .queue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    .queue-count {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .queue-hint {
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-align: right;
+    }
+
+    .queue {
+      margin-top: 4px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #4b5563 transparent;
+    }
+
+    .queue::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .queue::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .queue::-webkit-scrollbar-thumb {
+      background: #4b5563;
+      border-radius: 999px;
+    }
+
+    .video-card {
+      flex: 0 0 180px;
+      max-width: 180px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      box-shadow: 0 12px 25px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      cursor: grab;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        border-color 0.12s ease;
+    }
+
+    .video-card:active {
+      cursor: grabbing;
+      transform: scale(0.98);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    .video-card.dragging {
+      opacity: 0.75;
+      transform: scale(0.97);
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.8),
+        0 20px 40px rgba(0, 0, 0, 0.9);
+    }
+
+    .video-card.active {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.7),
+        0 0 30px rgba(34, 197, 94, 0.5);
+    }
+
+    .video-card.sound-active {
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.8),
+        0 0 25px rgba(251, 191, 36, 0.9);
+    }
+
+    .video-preview {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      background: radial-gradient(circle at top, #22c55e, #0f172a 60%);
+      overflow: hidden;
+    }
+
+    .video-thumb {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-thumb span {
+      font-size: 0.8rem;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+    }
+
+    .video-mini-player {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .video-meta {
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .video-service {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+    }
+
+    .video-url {
+      font-size: 0.7rem;
+      color: #d1d5db;
+      word-break: break-all;
+      max-height: 3em;
+      overflow: hidden;
+    }
+
+    .video-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .play-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      background: rgba(34, 197, 94, 0.12);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      transition: background 0.12s ease, transform 0.08s ease;
+    }
+
+    .play-btn:hover {
+      background: rgba(34, 197, 94, 0.25);
+      transform: translateY(-0.5px);
+    }
+
+    .remove-btn {
+      border: none;
+      background: none;
+      color: #f97373;
+      font-size: 0.75rem;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.15);
+      color: #bfdbfe;
+      font-size: 0.7rem;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #3b82f6;
+    }
+
+    .error {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: #fca5a5;
+    }
+
+    /* Record button */
+
+    .record-btn {
+      border-radius: 999px;
+      border: 1px solid #dc2626;
+      background: #7f1d1d;
+      color: #fee2e2;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 12px rgba(248, 113, 113, 0.5);
+    }
+
+    .record-btn .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fecaca;
+      display: inline-block;
+    }
+
+    .record-btn.recording {
+      background: #dc2626;
+      border-color: #fecaca;
+      box-shadow: 0 0 18px rgba(248, 113, 113, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">
+        <div class="logo-mark">T</div>
+        <div class="logo-text">
+          <h1>Twill</h1>
+          <span>The content plug</span>
+        </div>
+        <img src="channels4_profile.jpg" alt="Twill logo" class="logo-img" />
+      </div>
+      <div class="tag">
+        Paste → Add → Play • Drag into A–D
+      </div>
+    </header>
+
+    <section>
+      <div class="search-bar">
+        <input
+          id="urlInput"
+          type="text"
+          placeholder="Add a YouTube or Kick URL (e.g. https://youtu.be/..., https://kick.com/...)"
+        />
+        <button id="addBtn">Add</button>
+      </div>
+      <p class="hint">
+        Supports common YouTube links (&amp; youtu.be) and Kick channel URLs.
+      </p>
+      <p class="error" id="errorMsg" style="display:none;"></p>
+    </section>
+
+    <main class="main">
+      <section class="player-wrapper">
+        <div class="player-header">
+          <div class="player-title">
+            <span class="dot"></span>
+            <span>Now Playing (4-up, adjustable)</span>
+          </div>
+          <div class="player-status">
+            <span class="player-main-label" id="currentLabel">Nothing playing</span>
+            <button class="record-btn" id="recordBtn">
+              <span class="dot"></span>
+              Start recording
+            </button>
+          </div>
+        </div>
+
+        <div class="player-grid" id="playerGrid">
+          <!-- LEFT COLUMN -->
+          <div class="player-col" id="colLeft">
+            <div class="player-slot" data-slot="slot1">
+              <div class="player-slot-header">
+                <span class="slot-pill">Slot A</span>
+                <div class="slot-right">
+                  <span id="slotLabel1">Empty</span>
+                  <button class="sound-toggle" data-slot="slot1">
+                    🔊 Sound
+                  </button>
+                  <button class="slot-clear" data-slot="slot1">
+                    ✖ Remove
+                  </button>
+                </div>
+              </div>
+              <div
+                class="player-dropzone"
+                draggable="true"
+                id="playerDropzone1"
+                data-slot="slot1"
+              >
+                <div class="player-empty-state" id="playerEmptyState1">
+                  <strong>Drop a video card here</strong><br />
+                  or double-click a card / hit Play.
+                </div>
+                <div class="player-content" id="playerContent1">
+                  <div class="player-video" data-slot-video="slot1">
+                    <iframe
+                      id="mainPlayer1"
+                      class="player-frame"
+                      src=""
+                      allowfullscreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    ></iframe>
+                  </div>
+                  <div class="inner-resizer" data-inner-resizer="slot1"></div>
+                  <div class="player-chat" data-slot-chat="slot1">
+                    <div class="chat-header">
+                      <span>Chat</span>
+                      <button class="chat-close" data-slot="slot1">✖</button>
+                    </div>
+                    <iframe
+                      id="chatFrame1"
+                      class="player-chat-frame"
+                    ></iframe>
+                    <div class="player-chat-empty" id="chatEmpty1">
+                      Chat available for YouTube live streams.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row-resizer" id="rowResizerLeft"></div>
+
+            <div class="player-slot" data-slot="slot3">
+              <div class="player-slot-header">
+                <span class="slot-pill">Slot C</span>
+                <div class="slot-right">
+                  <span id="slotLabel3">Empty</span>
+                  <button class="sound-toggle" data-slot="slot3">
+                    🔊 Sound
+                  </button>
+                  <button class="slot-clear" data-slot="slot3">
+                    ✖ Remove
+                  </button>
+                </div>
+              </div>
+              <div
+                class="player-dropzone"
+                draggable="true"
+                id="playerDropzone3"
+                data-slot="slot3"
+              >
+                <div class="player-empty-state" id="playerEmptyState3">
+                  <strong>Drop a video here</strong><br />
+                  Use Slot C for side-by-side setups.
+                </div>
+                <div class="player-content" id="playerContent3">
+                  <div class="player-video" data-slot-video="slot3">
+                    <iframe
+                      id="mainPlayer3"
+                      class="player-frame"
+                      src=""
+                      allowfullscreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    ></iframe>
+                  </div>
+                  <div class="inner-resizer" data-inner-resizer="slot3"></div>
+                  <div class="player-chat" data-slot-chat="slot3">
+                    <div class="chat-header">
+                      <span>Chat</span>
+                      <button class="chat-close" data-slot="slot3">✖</button>
+                    </div>
+                    <iframe
+                      id="chatFrame3"
+                      class="player-chat-frame"
+                    ></iframe>
+                    <div class="player-chat-empty" id="chatEmpty3">
+                      Chat available for YouTube live streams.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COLUMN RESIZER -->
+          <div class="col-resizer" id="colResizer"></div>
+
+          <!-- RIGHT COLUMN -->
+          <div class="player-col" id="colRight">
+            <div class="player-slot" data-slot="slot2">
+              <div class="player-slot-header">
+                <span class="slot-pill">Slot B</span>
+                <div class="slot-right">
+                  <span id="slotLabel2">Empty</span>
+                  <button class="sound-toggle" data-slot="slot2">
+                    🔊 Sound
+                  </button>
+                  <button class="slot-clear" data-slot="slot2">
+                    ✖ Remove
+                  </button>
+                </div>
+              </div>
+              <div
+                class="player-dropzone"
+                draggable="true"
+                id="playerDropzone2"
+                data-slot="slot2"
+              >
+                <div class="player-empty-state" id="playerEmptyState2">
+                  <strong>Drop a video here</strong><br />
+                  Use Slot B for dual streams.
+                </div>
+                <div class="player-content" id="playerContent2">
+                  <div class="player-video" data-slot-video="slot2">
+                    <iframe
+                      id="mainPlayer2"
+                      class="player-frame"
+                      src=""
+                      allowfullscreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    ></iframe>
+                  </div>
+                  <div class="inner-resizer" data-inner-resizer="slot2"></div>
+                  <div class="player-chat" data-slot-chat="slot2">
+                    <div class="chat-header">
+                      <span>Chat</span>
+                      <button class="chat-close" data-slot="slot2">✖</button>
+                    </div>
+                    <iframe
+                      id="chatFrame2"
+                      class="player-chat-frame"
+                    ></iframe>
+                    <div class="player-chat-empty" id="chatEmpty2">
+                      Chat available for YouTube live streams.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row-resizer" id="rowResizerRight"></div>
+
+            <div class="player-slot" data-slot="slot4">
+              <div class="player-slot-header">
+                <span class="slot-pill">Slot D</span>
+                <div class="slot-right">
+                  <span id="slotLabel4">Empty</span>
+                  <button class="sound-toggle" data-slot="slot4">
+                    🔊 Sound
+                  </button>
+                  <button class="slot-clear" data-slot="slot4">
+                    ✖ Remove
+                  </button>
+                </div>
+              </div>
+              <div
+                class="player-dropzone"
+                draggable="true"
+                id="playerDropzone4"
+                data-slot="slot4"
+              >
+                <div class="player-empty-state" id="playerEmptyState4">
+                  <strong>Drop a video here</strong><br />
+                  Perfect for chat or VODs.
+                </div>
+                <div class="player-content" id="playerContent4">
+                  <div class="player-video" data-slot-video="slot4">
+                    <iframe
+                      id="mainPlayer4"
+                      class="player-frame"
+                      src=""
+                      allowfullscreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    ></iframe>
+                  </div>
+                  <div class="inner-resizer" data-inner-resizer="slot4"></div>
+                  <div class="player-chat" data-slot-chat="slot4">
+                    <div class="chat-header">
+                      <span>Chat</span>
+                      <button class="chat-close" data-slot="slot4">✖</button>
+                    </div>
+                    <iframe
+                      id="chatFrame4"
+                      class="player-chat-frame"
+                    ></iframe>
+                    <div class="player-chat-empty" id="chatEmpty4">
+                      Chat available for YouTube live streams.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="queue-wrapper">
+        <div class="queue-header">
+          <div>
+            Queue
+            <span class="queue-count" id="queueCount">(0 videos)</span>
+          </div>
+          <div class="queue-hint">
+            Drag to reorder • Drag into A–D • Play to watch in queue &amp; slots
+          </div>
+        </div>
+        <div class="queue" id="queue"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const urlInput = document.getElementById("urlInput");
+    const addBtn = document.getElementById("addBtn");
+    const queueEl = document.getElementById("queue");
+    const queueCountEl = document.getElementById("queueCount");
+    const errorMsg = document.getElementById("errorMsg");
+    const currentLabel = document.getElementById("currentLabel");
+    const recordBtn = document.getElementById("recordBtn");
+
+    // Player slots
+    const slots = [
+      {
+        id: "slot1",
+        dropzone: document.getElementById("playerDropzone1"),
+        iframe: document.getElementById("mainPlayer1"),
+        emptyState: document.getElementById("playerEmptyState1"),
+        label: document.getElementById("slotLabel1"),
+        chatFrame: document.getElementById("chatFrame1"),
+        chatEmpty: document.getElementById("chatEmpty1"),
+      },
+      {
+        id: "slot2",
+        dropzone: document.getElementById("playerDropzone2"),
+        iframe: document.getElementById("mainPlayer2"),
+        emptyState: document.getElementById("playerEmptyState2"),
+        label: document.getElementById("slotLabel2"),
+        chatFrame: document.getElementById("chatFrame2"),
+        chatEmpty: document.getElementById("chatEmpty2"),
+      },
+      {
+        id: "slot3",
+        dropzone: document.getElementById("playerDropzone3"),
+        iframe: document.getElementById("mainPlayer3"),
+        emptyState: document.getElementById("playerEmptyState3"),
+        label: document.getElementById("slotLabel3"),
+        chatFrame: document.getElementById("chatFrame3"),
+        chatEmpty: document.getElementById("chatEmpty3"),
+      },
+      {
+        id: "slot4",
+        dropzone: document.getElementById("playerDropzone4"),
+        iframe: document.getElementById("mainPlayer4"),
+        emptyState: document.getElementById("playerEmptyState4"),
+        label: document.getElementById("slotLabel4"),
+        chatFrame: document.getElementById("chatFrame4"),
+        chatEmpty: document.getElementById("chatEmpty4"),
+      },
+    ];
+
+    const slotAssignments = {
+      slot1: null,
+      slot2: null,
+      slot3: null,
+      slot4: null,
+    };
+
+    let dragSrcEl = null;
+    let dragSourceSlotId = null;
+    let videoIdCounter = 0;
+    let lastUsedSlotIndex = 0;
+
+    // Sound highlight tracking
+    let soundSlotId = null;
+    let soundCardId = null;
+
+    // Screen recording state
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+
+    /* URL PARSING */
+
+    function parseVideoUrl(url) {
+      url = url.trim();
+      if (!url) return null;
+
+      // YouTube patterns
+      const ytMatch =
+        url.match(
+          /(?:youtube\.com\/.*[?&]v=|youtu\.be\/)([\w-]{11})/i
+        ) ||
+        url.match(/youtube\.com\/embed\/([\w-]{11})/i);
+
+      if (ytMatch) {
+        const videoId = ytMatch[1];
+        return {
+          service: "YouTube",
+          embedUrl: `https://www.youtube.com/embed/${videoId}`,
+          videoId,
+        };
+      }
+
+      // Kick channel pattern: https://kick.com/channelName
+      const kickMatch = url.match(
+        /kick\.com\/([a-zA-Z0-9_]+)/i
+      );
+      if (kickMatch) {
+        return {
+          service: "Kick",
+          embedUrl: `https://player.kick.com/${kickMatch[1]}`,
+          videoId: null,
+        };
+      }
+
+      return null;
+    }
+
+    /* UI HELPERS */
+
+    function setError(message) {
+      if (!message) {
+        errorMsg.style.display = "none";
+        errorMsg.textContent = "";
+      } else {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = message;
+      }
+    }
+
+    function updateQueueCount() {
+      const count = queueEl.children.length;
+      queueCountEl.textContent =
+        count === 1 ? "(1 video)" : `(${count} videos)`;
+    }
+
+    function refreshActiveHighlights() {
+      const activeIds = Object.values(slotAssignments).filter(Boolean);
+      Array.from(queueEl.children).forEach((card) => {
+        const isActive = activeIds.includes(card.dataset.id);
+        card.classList.toggle("active", isActive);
+      });
+    }
+
+    function refreshCurrentLabel() {
+      const activeIds = Object.values(slotAssignments).filter(Boolean);
+      const uniqueActive = Array.from(new Set(activeIds));
+      const count = uniqueActive.length;
+
+      if (count === 0) {
+        currentLabel.textContent = "Nothing playing";
+      } else if (count === 1) {
+        currentLabel.textContent = "Playing 1 video";
+      } else {
+        currentLabel.textContent = `Playing ${count} videos`;
+      }
+    }
+
+    function clearChatForSlot(slot) {
+      if (!slot) return;
+      if (slot.chatFrame) {
+        slot.chatFrame.src = "";
+        slot.chatFrame.style.display = "none";
+      }
+      if (slot.chatEmpty) {
+        slot.chatEmpty.style.display = "none";
+      }
+      // Leave the container visibility as-is; close button may hide it.
+    }
+
+    function setChatForSlot(slot, service, videoId) {
+      // Ensure container & resizer are visible when we (re)attach chat
+      const chatContainer = document.querySelector(
+        `[data-slot-chat="${slot.id}"]`
+      );
+      const resizer = document.querySelector(
+        `[data-inner-resizer="${slot.id}"]`
+      );
+      const videoEl = document.querySelector(
+        `[data-slot-video="${slot.id}"]`
+      );
+      if (chatContainer) {
+        chatContainer.style.display = "flex";
+      }
+      if (resizer) {
+        resizer.style.display = "block";
+      }
+      if (videoEl) {
+        videoEl.style.flex = "";
+      }
+
+      if (!slot.chatFrame || !slot.chatEmpty) return;
+
+      if (service === "YouTube" && videoId) {
+        const domain = window.location.hostname || "localhost";
+        const chatUrl = `https://www.youtube.com/live_chat?v=${videoId}&embed_domain=${domain}`;
+        slot.chatFrame.src = chatUrl;
+        slot.chatFrame.style.display = "block";
+        slot.chatEmpty.style.display = "none";
+      } else {
+        slot.chatFrame.src = "";
+        slot.chatFrame.style.display = "none";
+        slot.chatEmpty.style.display = "block";
+      }
+    }
+
+    function clearSlot(slotId) {
+      const slot = slots.find((s) => s.id === slotId);
+      if (!slot) return;
+
+      slotAssignments[slotId] = null;
+      slot.iframe.src = "";
+      slot.iframe.style.display = "none";
+      slot.emptyState.style.display = "block";
+      slot.label.textContent = "Empty";
+
+      clearChatForSlot(slot);
+
+      if (soundSlotId === slotId) {
+        soundSlotId = null;
+        slot.dropzone.classList.remove("sound-active");
+        updateSoundToggleButtons();
+      }
+    }
+
+    function updateSoundToggleButtons() {
+      document.querySelectorAll(".sound-toggle").forEach((btn) => {
+        const isActive = btn.dataset.slot === soundSlotId;
+        btn.classList.toggle("active", isActive);
+      });
+    }
+
+    function setSoundHighlightForSlot(slotId) {
+      soundSlotId = slotId;
+      slots.forEach((s) => {
+        if (s.id === slotId) {
+          s.dropzone.classList.add("sound-active");
+        } else {
+          s.dropzone.classList.remove("sound-active");
+        }
+      });
+      updateSoundToggleButtons();
+    }
+
+    function setSoundHighlightForCard(cardId) {
+      soundCardId = cardId;
+      Array.from(queueEl.children).forEach((card) => {
+        if (card.dataset.id === cardId) {
+          card.classList.add("sound-active");
+        } else {
+          card.classList.remove("sound-active");
+        }
+      });
+    }
+
+    function clearSoundHighlightForCard(cardId) {
+      Array.from(queueEl.children).forEach((card) => {
+        if (card.dataset.id === cardId) {
+          card.classList.remove("sound-active");
+        }
+      });
+      if (soundCardId === cardId) {
+        soundCardId = null;
+      }
+    }
+
+    function pickSlotForCard(card) {
+      const cardId = card.dataset.id;
+
+      // If already in a slot, reuse that slot
+      for (let i = 0; i < slots.length; i++) {
+        const s = slots[i];
+        if (slotAssignments[s.id] === cardId) {
+          return i;
+        }
+      }
+
+      // Try empty slot
+      for (let i = 0; i < slots.length; i++) {
+        const s = slots[i];
+        if (!slotAssignments[s.id]) {
+          return i;
+        }
+      }
+
+      // Otherwise, rotate
+      lastUsedSlotIndex = (lastUsedSlotIndex + 1) % slots.length;
+      return lastUsedSlotIndex;
+    }
+
+    function setPlaying(card, slotIndex = null) {
+      const embedUrl = card.dataset.embedUrl;
+      const service = card.dataset.service;
+      const originalUrl = card.dataset.originalUrl;
+      const videoId = card.dataset.videoId || null;
+      if (!embedUrl) return;
+
+      if (slotIndex === null) {
+        slotIndex = pickSlotForCard(card);
+      }
+
+      const slot = slots[slotIndex];
+      slotAssignments[slot.id] = card.dataset.id;
+
+      slot.iframe.src = embedUrl;
+      slot.iframe.style.display = "block";
+      slot.emptyState.style.display = "none";
+
+      const shortUrl =
+        originalUrl.length > 30
+          ? originalUrl.slice(0, 27) + "..."
+          : originalUrl;
+
+      slot.label.textContent = `${service} • ${shortUrl}`;
+
+      setChatForSlot(slot, service, videoId);
+
+      refreshActiveHighlights();
+      refreshCurrentLabel();
+
+      // Assume this slot is now the audio focus
+      setSoundHighlightForSlot(slot.id);
+      setSoundHighlightForCard(card.dataset.id);
+    }
+
+    /* ADDING VIDEOS */
+
+    function handleAdd() {
+      const url = urlInput.value;
+      const parsed = parseVideoUrl(url);
+
+      if (!parsed) {
+        setError(
+          "That doesn't look like a supported YouTube or Kick URL. Try a standard video/channel link."
+        );
+        return;
+      }
+
+      setError(null);
+      addVideoCard(url, parsed.service, parsed.embedUrl, parsed.videoId);
+      urlInput.value = "";
+      urlInput.focus();
+    }
+
+    function addVideoCard(originalUrl, service, embedUrl, videoId) {
+      const id = "vid-" + videoIdCounter++;
+      const card = document.createElement("article");
+      card.className = "video-card";
+      card.setAttribute("draggable", "true");
+      card.dataset.id = id;
+      card.dataset.embedUrl = embedUrl;
+      card.dataset.service = service;
+      card.dataset.originalUrl = originalUrl;
+      if (videoId) {
+        card.dataset.videoId = videoId;
+      }
+
+      card.innerHTML = `
+        <div class="video-preview">
+          <div class="video-thumb">
+            <span>${service}</span>
+          </div>
+          <iframe
+            class="video-mini-player"
+            src=""
+            allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          ></iframe>
+        </div>
+        <div class="video-meta">
+          <div class="video-service">
+            <span class="badge">
+              <span class="badge-dot"></span>${service}
+            </span>
+          </div>
+          <div class="video-url">${originalUrl}</div>
+          <div class="video-actions">
+            <button class="play-btn">Play</button>
+            <button class="remove-btn">Remove</button>
+          </div>
+        </div>
+      `;
+
+      const preview = card.querySelector(".video-preview");
+      const thumb = preview.querySelector(".video-thumb");
+      const miniPlayer = preview.querySelector(".video-mini-player");
+      const playBtn = card.querySelector(".play-btn");
+
+      /* Drag & drop within queue */
+
+      card.addEventListener("dragstart", (e) => {
+        dragSrcEl = card;
+        dragSourceSlotId = null;
+        card.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", id);
+      });
+
+      card.addEventListener("dragend", () => {
+        card.classList.remove("dragging");
+        dragSrcEl = null;
+        dragSourceSlotId = null;
+      });
+
+      card.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+      });
+
+      card.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const draggedId = e.dataTransfer.getData("text/plain");
+        const draggedEl = Array.from(queueEl.children).find(
+          (c) => c.dataset.id === draggedId
+        );
+        if (!draggedEl || draggedEl === card) return;
+
+        const bounding = card.getBoundingClientRect();
+        const offset = e.clientX - bounding.left;
+        const middle = bounding.width / 2;
+
+        if (offset < middle) {
+          queueEl.insertBefore(draggedEl, card);
+        } else {
+          queueEl.insertBefore(draggedEl, card.nextSibling);
+        }
+      });
+
+      /* Play in queue + also send to Now Playing */
+
+      playBtn.addEventListener("click", () => {
+        const isPlaying =
+          miniPlayer.style.display === "block" && miniPlayer.src;
+
+        if (!isPlaying) {
+          // Turn on mini player
+          miniPlayer.src = embedUrl;
+          miniPlayer.style.display = "block";
+          thumb.style.display = "none";
+          playBtn.textContent = "Stop";
+
+          // Also send to a Now Playing slot & mark audio focus
+          setPlaying(card);
+        } else {
+          // Stop mini player
+          miniPlayer.src = "";
+          miniPlayer.style.display = "none";
+          thumb.style.display = "flex";
+          playBtn.textContent = "Play";
+
+          clearSoundHighlightForCard(card.dataset.id);
+        }
+      });
+
+      /* Double-click = send to slot (no change to mini player state) */
+
+      card.addEventListener("dblclick", () => {
+        setPlaying(card);
+      });
+
+      /* Remove card */
+
+      card.querySelector(".remove-btn").addEventListener("click", () => {
+        const cardId = card.dataset.id;
+
+        // Clear from any slots using this card
+        Object.keys(slotAssignments).forEach((slotId) => {
+          if (slotAssignments[slotId] === cardId) {
+            clearSlot(slotId);
+          }
+        });
+
+        miniPlayer.src = "";
+        card.remove();
+        updateQueueCount();
+        refreshActiveHighlights();
+        refreshCurrentLabel();
+        clearSoundHighlightForCard(cardId);
+      });
+
+      queueEl.appendChild(card);
+      updateQueueCount();
+
+      // Auto-fill Slot A if no slots yet used
+      const anyAssigned =
+        slotAssignments.slot1 ||
+        slotAssignments.slot2 ||
+        slotAssignments.slot3 ||
+        slotAssignments.slot4;
+      if (!anyAssigned) {
+        setPlaying(card, 0);
+      }
+    }
+
+    /* DROP INTO SLOTS (from queue or from other slots) */
+
+    slots.forEach((slot, index) => {
+      const dz = slot.dropzone;
+
+      // allow dropping cards or other slots into this slot
+      dz.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dz.classList.add("drag-over");
+        e.dataTransfer.dropEffect = "move";
+      });
+
+      dz.addEventListener("dragleave", () => {
+        dz.classList.remove("drag-over");
+      });
+
+      // dragging from this slot to another slot
+      dz.addEventListener("dragstart", (e) => {
+        const cardId = slotAssignments[slot.id];
+        if (!cardId) {
+          e.preventDefault();
+          return;
+        }
+        dragSourceSlotId = slot.id;
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", cardId);
+        e.dataTransfer.setData("fromSlot", slot.id);
+      });
+
+      dz.addEventListener("dragend", () => {
+        dragSourceSlotId = null;
+      });
+
+      dz.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dz.classList.remove("drag-over");
+
+        const draggedId = e.dataTransfer.getData("text/plain");
+        const fromSlot = e.dataTransfer.getData("fromSlot");
+        const card = Array.from(queueEl.children).find(
+          (c) => c.dataset.id === draggedId
+        );
+        if (card) {
+          // If dragging from another slot, clear that slot first (move)
+          if (fromSlot && fromSlot !== slot.id) {
+            clearSlot(fromSlot);
+          }
+          setPlaying(card, index);
+        }
+      });
+    });
+
+    /* SOUND TOGGLE BUTTONS */
+
+    document.querySelectorAll(".sound-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const slotId = btn.dataset.slot;
+        setSoundHighlightForSlot(slotId);
+
+        // If that slot is showing a card, also mark that card as sound source
+        const cardId = slotAssignments[slotId];
+        if (cardId) {
+          setSoundHighlightForCard(cardId);
+        }
+      });
+    });
+
+    /* CLEAR SLOT BUTTONS */
+
+    document.querySelectorAll(".slot-clear").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const slotId = btn.dataset.slot;
+        clearSlot(slotId);
+      });
+    });
+
+    /* CHAT CLOSE BUTTONS: hide chat + inner resizer & expand video */
+
+    document.querySelectorAll(".chat-close").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const slotId = btn.dataset.slot;
+        const chatEl = document.querySelector(
+          `[data-slot-chat="${slotId}"]`
+        );
+        const resizer = document.querySelector(
+          `[data-inner-resizer="${slotId}"]`
+        );
+        const videoEl = document.querySelector(
+          `[data-slot-video="${slotId}"]`
+        );
+
+        if (chatEl) {
+          chatEl.style.display = "none";
+        }
+        if (resizer) {
+          resizer.style.display = "none";
+        }
+        if (videoEl) {
+          videoEl.style.flex = "1 0 100%";
+        }
+      });
+    });
+
+    /* RESIZABLE GRID (cols + rows) */
+
+    const playerGrid = document.getElementById("playerGrid");
+    const colResizer = document.getElementById("colResizer");
+    const colLeft = document.getElementById("colLeft");
+    const colRight = document.getElementById("colRight");
+    const rowResizerLeft = document.getElementById("rowResizerLeft");
+    const rowResizerRight = document.getElementById("rowResizerRight");
+
+    const slot1El = colLeft.querySelector('[data-slot="slot1"]');
+    const slot3El = colLeft.querySelector('[data-slot="slot3"]');
+    const slot2El = colRight.querySelector('[data-slot="slot2"]');
+    const slot4El = colRight.querySelector('[data-slot="slot4"]');
+
+    let isColResizing = false;
+    let isRowResizingLeft = false;
+    let isRowResizingRight = false;
+
+    let startX = 0;
+    let startLeftWidth = 0;
+
+    let startYLeft = 0;
+    let startTopHeightLeft = 0;
+
+    let startYRight = 0;
+    let startTopHeightRight = 0;
+
+    // Horizontal (columns) resize
+    if (colResizer) {
+      colResizer.addEventListener("mousedown", (e) => {
+        isColResizing = true;
+        startX = e.clientX;
+        startLeftWidth = colLeft.getBoundingClientRect().width;
+        document.body.style.userSelect = "none";
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isColResizing) return;
+
+        const dx = e.clientX - startX;
+        const gridRect = playerGrid.getBoundingClientRect();
+        const minWidth = gridRect.width * 0.15;
+        const maxWidth = gridRect.width * 0.85;
+
+        let newLeftWidth = startLeftWidth + dx;
+        if (newLeftWidth < minWidth) newLeftWidth = minWidth;
+        if (newLeftWidth > maxWidth) newLeftWidth = maxWidth;
+
+        const leftPercent = (newLeftWidth / gridRect.width) * 100;
+        const rightPercent = 100 - leftPercent;
+
+        colLeft.style.flex = `0 0 ${leftPercent}%`;
+        colRight.style.flex = `0 0 ${rightPercent}%`;
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!isColResizing) return;
+        isColResizing = false;
+        document.body.style.userSelect = "";
+      });
+    }
+
+    // Vertical (rows) resize left side
+    if (rowResizerLeft) {
+      rowResizerLeft.addEventListener("mousedown", (e) => {
+        isRowResizingLeft = true;
+        startYLeft = e.clientY;
+        startTopHeightLeft = slot1El.getBoundingClientRect().height;
+        document.body.style.userSelect = "none";
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isRowResizingLeft) return;
+
+        const dy = e.clientY - startYLeft;
+        const colRect = colLeft.getBoundingClientRect();
+        const minHeight = colRect.height * 0.15;
+        const maxHeight = colRect.height * 0.85;
+
+        let newTopHeight = startTopHeightLeft + dy;
+        if (newTopHeight < minHeight) newTopHeight = minHeight;
+        if (newTopHeight > maxHeight) newTopHeight = maxHeight;
+
+        const topPercent = (newTopHeight / colRect.height) * 100;
+        const bottomPercent = 100 - topPercent;
+
+        slot1El.style.flex = `0 0 ${topPercent}%`;
+        slot3El.style.flex = `0 0 ${bottomPercent}%`;
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!isRowResizingLeft) return;
+        isRowResizingLeft = false;
+        document.body.style.userSelect = "";
+      });
+    }
+
+    // Vertical (rows) resize right side
+    if (rowResizerRight) {
+      rowResizerRight.addEventListener("mousedown", (e) => {
+        isRowResizingRight = true;
+        startYRight = e.clientY;
+        startTopHeightRight = slot2El.getBoundingClientRect().height;
+        document.body.style.userSelect = "none";
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isRowResizingRight) return;
+
+        const dy = e.clientY - startYRight;
+        const colRect = colRight.getBoundingClientRect();
+        const minHeight = colRect.height * 0.15;
+        const maxHeight = colRect.height * 0.85;
+
+        let newTopHeight = startTopHeightRight + dy;
+        if (newTopHeight < minHeight) newTopHeight = minHeight;
+        if (newTopHeight > maxHeight) newTopHeight = maxHeight;
+
+        const topPercent = (newTopHeight / colRect.height) * 100;
+        const bottomPercent = 100 - topPercent;
+
+        slot2El.style.flex = `0 0 ${topPercent}%`;
+        slot4El.style.flex = `0 0 ${bottomPercent}%`;
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!isRowResizingRight) return;
+        isRowResizingRight = false;
+        document.body.style.userSelect = "";
+      });
+    }
+
+    /* INNER RESIZER: video vs chat per slot */
+
+    let isInnerResizing = false;
+    let innerStartX = 0;
+    let innerStartVideoWidth = 0;
+    let innerTotalWidth = 0;
+    let innerVideoEl = null;
+    let innerChatEl = null;
+
+    function onInnerMouseMove(e) {
+      if (!isInnerResizing || !innerVideoEl || !innerChatEl) return;
+
+      const dx = e.clientX - innerStartX;
+      let newVideoWidth = innerStartVideoWidth + dx;
+
+      const minVideo = innerTotalWidth * 0.2;
+      const maxVideo = innerTotalWidth * 0.8;
+
+      if (newVideoWidth < minVideo) newVideoWidth = minVideo;
+      if (newVideoWidth > maxVideo) newVideoWidth = maxVideo;
+
+      const videoPercent = (newVideoWidth / innerTotalWidth) * 100;
+      const chatPercent = 100 - videoPercent;
+
+      innerVideoEl.style.flex = `0 0 ${videoPercent}%`;
+      innerChatEl.style.flex = `0 0 ${chatPercent}%`;
+    }
+
+    function onInnerMouseUp() {
+      if (!isInnerResizing) return;
+      isInnerResizing = false;
+      innerVideoEl = null;
+      innerChatEl = null;
+      document.body.style.userSelect = "";
+      window.removeEventListener("mousemove", onInnerMouseMove);
+      window.removeEventListener("mouseup", onInnerMouseUp);
+    }
+
+    document.querySelectorAll(".inner-resizer").forEach((resizer) => {
+      resizer.addEventListener("mousedown", (e) => {
+        const slotId = resizer.dataset.innerResizer;
+        const videoEl = document.querySelector(`[data-slot-video="${slotId}"]`);
+        const chatEl = document.querySelector(`[data-slot-chat="${slotId}"]`);
+        if (!videoEl || !chatEl || chatEl.style.display === "none") return;
+
+        isInnerResizing = true;
+        innerVideoEl = videoEl;
+        innerChatEl = chatEl;
+
+        const contentRect = videoEl.parentElement.getBoundingClientRect();
+        innerTotalWidth = contentRect.width;
+        innerStartX = e.clientX;
+        innerStartVideoWidth = videoEl.getBoundingClientRect().width;
+
+        document.body.style.userSelect = "none";
+        window.addEventListener("mousemove", onInnerMouseMove);
+        window.addEventListener("mouseup", onInnerMouseUp);
+      });
+    });
+
+    /* SCREEN RECORDING */
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+          audio: true
+        });
+
+        recordedChunks = [];
+
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: "video/webm;codecs=vp9"
+        });
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "video/webm" });
+
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+
+          const filename =
+            "twill-recording-" +
+            new Date().toISOString().replace(/[:.]/g, "-") +
+            ".webm";
+
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 500);
+
+          recordBtn.disabled = false;
+          recordBtn.classList.remove("recording");
+          recordBtn.innerHTML = '<span class="dot"></span> Start recording';
+          isRecording = false;
+
+          stream.getTracks().forEach((t) => t.stop());
+        };
+
+        mediaRecorder.start(1000);
+      } catch (err) {
+        console.error("Error starting recording:", err);
+        alert("Could not start recording (permissions or browser issue).");
+
+        isRecording = false;
+        recordBtn.disabled = false;
+        recordBtn.classList.remove("recording");
+        recordBtn.innerHTML = '<span class="dot"></span> Start recording';
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+    }
+
+    /* INPUT HANDLERS */
+
+    addBtn.addEventListener("click", handleAdd);
+    urlInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        handleAdd();
+      }
+    });
+
+    if (recordBtn) {
+      recordBtn.addEventListener("click", async () => {
+        if (!isRecording) {
+          isRecording = true;
+          recordBtn.classList.add("recording");
+          recordBtn.textContent = "Stop recording";
+          recordBtn.disabled = false;
+          await startRecording();
+        } else {
+          recordBtn.disabled = true;
+          recordBtn.textContent = "Stopping...";
+          stopRecording();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+
